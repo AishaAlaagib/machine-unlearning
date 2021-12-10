@@ -9,7 +9,7 @@
 set -eou pipefail
 IFS=$'\n\t'
 
-datasets=(adult_income compas default_credit marketing )
+datasets=(new_adult_income adult_income compas default_credit marketing )
 rseed=(0)
 
 for dataset in "${datasets[@]}" 

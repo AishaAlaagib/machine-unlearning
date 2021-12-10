@@ -1,3 +1,0 @@
-nb_shards,nb_requests,accuracy, SP,PE,EOpp,EOdds,retraining_time
-5, 5, 0.66, 0.33, 0.23, 0.39, 0.39,  4.143172979354858
-5, 10, 0.66, 0.4, 0.33, 0.46, 0.46,  4.234198808670044

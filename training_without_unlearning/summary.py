@@ -25,7 +25,8 @@ data_dict = {
     'adult_income'      : ('adult_income', 'income'),
     'compas'            : ('compas', 'two_year_recid'),
     'default_credit'    : ('default_credit', 'DEFAULT_PAYEMENT'),
-    'marketing'         : ('marketing', 'subscribed')      
+    'marketing'         : ('marketing', 'subscribed')    ,
+    'new_adult_income' : ('new_adult_income', 'income')
 }
 
 
@@ -33,7 +34,8 @@ data_map = {
     'adult_income'      : 'Adult Income',
     'compas'            : 'COMPAS',
     'default_credit'    : 'Default Credit',
-    'marketing'         : 'Marketing'      
+    'marketing'         : 'Marketing' ,
+    'new_adult_income'      : 'New Adult Income'
 }
 
 
@@ -42,7 +44,8 @@ subgroup_dict = {
     'adult_income'      : ('gender_Female', 'gender_Male'),
     'compas'            : ('race_African-American', 'race_Caucasian'),
     'default_credit'    : ('SEX_Female', 'SEX_Male'),
-    'marketing'         : ('age_age:30-60', 'age_age:not30-60')      
+    'marketing'         : ('age_age:30-60', 'age_age:not30-60'),
+    'new_adult_income'      : ('female', 'male'),
 }
 
 class Model(Module):
@@ -133,9 +136,9 @@ def get_metrics(dataset, model_class, rseed):
         acc_train, acc_test =  None, None
 
         prediction_metrics = {}
-        if model_class == 'NN':
-            # load model
-            prediction_test = np.load(os.path.join(pwd, 'outputs-adult_income.npy',allow_pickle=True)   
+#         if model_class == 'NN':
+#             # load model
+#             prediction_test = np.load(os.path.join(pwd, 'outputs-adult_income.npy',allow_pickle=True)   
 
           
         if model_class == 'DNN':
@@ -160,7 +163,7 @@ def get_metrics(dataset, model_class, rseed):
         
         if model_class in ['RF', 'SVM', 'AdaBoost', 'XgBoost','NN']:
             # load model
-            mdl = Model()
+#             mdl = Model()
             mdl = pickle.load(open(model_path,"rb"))
 
             # get prediction
@@ -249,8 +252,8 @@ def get_metrics(dataset, model_class, rseed):
 
 if __name__ == '__main__':
     # inputs
-    datasets = ['adult_income', 'compas', 'default_credit', 'marketing']
-    model_classes = ['NN''AdaBoost', 'DNN', 'RF', 'XgBoost']
+    datasets = ['new_adult_income','adult_income']#, 'compas', 'default_credit', 'marketing']
+    model_classes = ['AdaBoost', 'DNN']#, 'RF', 'XgBoost']
     
     df_list = []
 

@@ -135,12 +135,12 @@ def save(df, dataset, decision, rseed):
     df_onehot = pd.get_dummies(df)
 
     # discretized_df
-    df_discretized = discretized(df_onehot, num_cols_dict[dataset])
+#     df_discretized = discretized(df_onehot, num_cols_dict[dataset])
 
     # rules_df
-    df_rules = create_rules(df_discretized, dataset)
+#     df_rules = create_rules(df_discretized, dataset)
 
-    # plain data
+#     # plain data
     df_train, df_holdout, indices_train, indices_holdout = train_test_split(df, range(len(df)), test_size=0.33, random_state=rseed, stratify=df[decision])
     df_test, df_attack, indices_test, indices_attack = train_test_split(df_holdout, range(len(df_holdout)), test_size=0.5, random_state=rseed, stratify=df_holdout[decision])
 
@@ -150,40 +150,40 @@ def save(df, dataset, decision, rseed):
     df_onehot_test, df_onehot_attack = df_onehot_holdout.iloc[indices_test,:], df_onehot_holdout.iloc[indices_attack,:]
 
     # discretized data
-    df_discretized_train = df_discretized.iloc[indices_train,:]
-    df_discretized_holdout  = df_discretized.iloc[indices_holdout,:]
-    df_discretized_test, df_discretized_attack = df_discretized_holdout.iloc[indices_test,:], df_discretized_holdout.iloc[indices_attack,:]
+#     df_discretized_train = df_discretized.iloc[indices_train,:]
+#     df_discretized_holdout  = df_discretized.iloc[indices_holdout,:]
+#     df_discretized_test, df_discretized_attack = df_discretized_holdout.iloc[indices_test,:], df_discretized_holdout.iloc[indices_attack,:]
 
-    # rules data
-    df_rules_train = df_rules.iloc[indices_train,:]
-    df_rules_holdout  = df_rules.iloc[indices_holdout,:]
-    df_rules_test, df_rules_attack = df_rules_holdout.iloc[indices_test,:], df_rules_holdout.iloc[indices_attack,:]
+#     # rules data
+#     df_rules_train = df_rules.iloc[indices_train,:]
+#     df_rules_holdout  = df_rules.iloc[indices_holdout,:]
+#     df_rules_test, df_rules_attack = df_rules_holdout.iloc[indices_test,:], df_rules_holdout.iloc[indices_attack,:]
 
     #save the full dataset
-    df.to_csv(full_name, index=False)
+#     df.to_csv(full_name, index=False)
     df_onehot.to_csv(oneHot_full_name, index=False)
-    df_discretized.to_csv(discretized_full_name, index=False)
-    df_rules.to_csv(rules_full_name, index=False)
+#     df_discretized.to_csv(discretized_full_name, index=False)
+#     df_rules.to_csv(rules_full_name, index=False)
 
 
     #save train set 
-    df_train.to_csv(train_name, index=False)
+#     df_train.to_csv(train_name, index=False)
     df_onehot_train.to_csv(oneHot_train_name, index=False)
-    df_discretized_train.to_csv(discretized_train_name, index=False)
-    df_rules_train.to_csv(rules_train_name, index=False)
+#     df_discretized_train.to_csv(discretized_train_name, index=False)
+#     df_rules_train.to_csv(rules_train_name, index=False)
 
 
     #save test set
-    df_test.to_csv(test_name, index=False)
+#     df_test.to_csv(test_name, index=False)
     df_onehot_test.to_csv(oneHot_test_name, index=False)
-    df_discretized_test.to_csv(discretized_test_name, index=False)
-    df_rules_test.to_csv(rules_test_name, index=False)
+#     df_discretized_test.to_csv(discretized_test_name, index=False)
+#     df_rules_test.to_csv(rules_test_name, index=False)
 
     #save attack set
-    df_attack.to_csv(attack_name, index=False)
+#     df_attack.to_csv(attack_name, index=False)
     df_onehot_attack.to_csv(oneHot_attack_name, index=False)
-    df_discretized_attack.to_csv(discretized_attack_name, index=False)
-    df_rules_attack.to_csv(rules_attack_name, index=False)
+#     df_discretized_attack.to_csv(discretized_attack_name, index=False)
+#     df_rules_attack.to_csv(rules_attack_name, index=False)
 
     
     

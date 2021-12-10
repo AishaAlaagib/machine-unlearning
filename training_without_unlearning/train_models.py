@@ -37,14 +37,17 @@ dataset_dict = {
     1 : 'adult_income',
     2 : 'compas',
     3 : 'default_credit',
-    4 : 'marketing'
+    4 : 'marketing',
+    5: 'new_adult_income'
 }
 
 data_dict = {
     'adult_income'      : ('adult_income', 'income'),
     'compas'            : ('compas', 'two_year_recid'),
     'default_credit'    : ('default_credit', 'DEFAULT_PAYEMENT'),
-    'marketing'         : ('marketing', 'subscribed')      
+    'marketing'         : ('marketing', 'subscribed') ,
+    'new_adult_income'      : ('new_adult_income', 'income')
+
 }  
 
 space_DNN = {
@@ -283,7 +286,7 @@ if __name__ == '__main__':
 
     # parser initialization
     parser = argparse.ArgumentParser(description='Script pretraining DNN models')
-    parser.add_argument('--dataset', type=str, default='german_credit', help='german_credit,adult_income, compas, default_credit, marketing')
+    parser.add_argument('--dataset', type=str, default='new_adult_income', help='new_adult_income,adult_income, compas, default_credit, marketing')
     parser.add_argument('--rseed', type=int, default=0, help='random seed: choose between 0 - 9')
     parser.add_argument('--model_class', type=str, default='DNN', help='DNN, RF, AdaBoost, XgBoost')
     parser.add_argument('--nbr_evals', type=int, default=25, help='Number of evaluations for hyperopt')

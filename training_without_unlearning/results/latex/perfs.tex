@@ -1,8 +1,19 @@
-\begin{tabular}{lllrrrr}
+\begin{tabular}{lllrrrrr}
 \toprule
-             &    &      &    SP &    PE &  EOpp &  EOdds \\
-Dataset & Model & Partition &       &       &       &        \\
+             &     &      &  Accuracy &    SP &    PE &  EOpp &  EOdds \\
+Dataset & Model & Partition &           &       &       &       &        \\
 \midrule
-Adult Income & NN & Test &  0.19 &  0.08 &  0.16 &   0.16 \\
+\multirow{4}{*}{New Adult Income} & \multirow{2}{*}{AdaBoost} & Train &      0.80 &  0.02 &  0.05 &  0.11 &   0.11 \\
+             &     & Test &      0.80 &  0.02 &  0.01 &  0.26 &   0.26 \\
+\cline{2-8}
+             & \multirow{2}{*}{DNN} & Train &      0.81 &  0.02 &  0.02 &  0.03 &   0.03 \\
+             &     & Test &      0.81 &  0.00 &  0.02 &  0.15 &   0.15 \\
+\cline{1-8}
+\cline{2-8}
+\multirow{4}{*}{Adult Income} & \multirow{2}{*}{AdaBoost} & Train &      0.86 &  0.18 &  0.06 &  0.20 &   0.20 \\
+             &     & Test &      0.85 &  0.17 &  0.06 &  0.20 &   0.20 \\
+\cline{2-8}
+             & \multirow{2}{*}{DNN} & Train &      0.86 &  0.17 &  0.06 &  0.08 &   0.08 \\
+             &     & Test &      0.85 &  0.17 &  0.06 &  0.14 &   0.14 \\
 \bottomrule
 \end{tabular}

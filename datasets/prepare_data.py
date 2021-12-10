@@ -19,20 +19,35 @@ dataset_dict = {
     1 : 'adult_income',
     2 : 'compas',
     3 : 'default_credit',
-    4 : 'marketing'
+    4 : 'marketing',
+    5: 'new_adult_income'
 }
 
 data_dict = {
     'adult_income'      : ('adult_income', 'income'),
     'compas'            : ('compas', 'two_year_recid'),
     'default_credit'    : ('default_credit', 'DEFAULT_PAYEMENT'),
-    'marketing'         : ('marketing', 'subscribed') 
-}  
+    'marketing'         : ('marketing', 'subscribed')    ,
+    'new_adult_income' : ('new_adult_income', 'income')
+}
+
+
+data_map = {
+    'adult_income'      : 'Adult Income',
+    'compas'            : 'COMPAS',
+    'default_credit'    : 'Default Credit',
+    'marketing'         : 'Marketing' ,
+    'new_adult_income'      : 'New Adult Income'
+}
+
+
+
 subgroup_dict = {
     'adult_income'      : ('gender_Female', 'gender_Male'),
     'compas'            : ('race_African-American', 'race_Caucasian'),
     'default_credit'    : ('SEX_Female', 'SEX_Male'),
-    'marketing'         : ('age_age:not30-60', 'age_age:30-60')      
+    'marketing'         : ('age_age:30-60', 'age_age:not30-60'),
+    'new_adult_income'      : ('female', 'male'),
 }
 
 def prepare_data(data, rseed):
@@ -78,7 +93,7 @@ def prepare_data(data, rseed):
     y_test = np.asarray(y_test).astype(np.float32)
     maj_test  = np.asarray(maj_features_test).astype(np.float32)
     min_test  = np.asarray(min_features_test).astype(np.float32)
-
+    print(X_train.shape, X_test.shape)
     return X_train, y_train, X_test, y_test, maj_train, min_train, maj_test, min_test
     
     
