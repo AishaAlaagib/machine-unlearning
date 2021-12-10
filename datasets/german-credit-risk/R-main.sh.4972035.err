@@ -1,0 +1,102 @@
+2021-11-12 12:20:39.860242: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:39.860283: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+2021-11-12 12:20:43.698299: I tensorflow/stream_executor/platform/default/dso_loader.cc:53] Successfully opened dynamic library libcuda.so.1
+2021-11-12 12:20:43.763336: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1733] Found device 0 with properties: 
+pciBusID: 0000:d8:00.0 name: Tesla T4 computeCapability: 7.5
+coreClock: 1.59GHz coreCount: 40 deviceMemorySize: 14.75GiB deviceMemoryBandwidth: 298.08GiB/s
+2021-11-12 12:20:43.763589: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.763870: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcublas.so.11'; dlerror: libcublas.so.11: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.764064: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcublasLt.so.11'; dlerror: libcublasLt.so.11: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.764251: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcufft.so.10'; dlerror: libcufft.so.10: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.764431: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcurand.so.10'; dlerror: libcurand.so.10: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.764612: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcusolver.so.11'; dlerror: libcusolver.so.11: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.764796: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcusparse.so.11'; dlerror: libcusparse.so.11: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.764967: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudnn.so.8'; dlerror: libcudnn.so.8: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:/pkgs/cuda-10.0/lib64:/pkgs/cudnn-10.0-v7.6.3.30/lib64:
+2021-11-12 12:20:43.764981: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1766] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+2021-11-12 12:20:43.765336: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-11-12 12:20:43.765538: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1258] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-11-12 12:20:43.765554: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1264]      
+2021-11-12 12:20:44.010747: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:176] None of the MLIR Optimization Passes are enabled (registered 2)
+2021-11-12 12:20:44.011699: I tensorflow/core/platform/profile_utils/cpu_utils.cc:114] CPU Frequency: 2100000000 Hz
+unfairness_result.py:156: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '0'
+unfairness_result.py:157: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '1'
+unfairness_result.py:153: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '1'
+unfairness_result.py:154: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '0'
+unfairness_result.py:156: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '0'
+unfairness_result.py:157: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '1'
+unfairness_result.py:153: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '1'
+unfairness_result.py:154: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '0'
+unfairness_result.py:156: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '0'
+unfairness_result.py:157: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '1'
+unfairness_result.py:153: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '1'
+unfairness_result.py:154: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '0'
+unfairness_result.py:156: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '0'
+unfairness_result.py:157: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '1'
+unfairness_result.py:153: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:<25'][i] = '1'
+unfairness_result.py:154: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  german_df['age_age:>=25'][i] = '0'

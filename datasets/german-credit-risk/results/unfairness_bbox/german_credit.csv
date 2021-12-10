@@ -1,0 +1,17 @@
+model_class,unfairness,metric,group
+AdaBoost,0.0,SP,Non-Members
+AdaBoost,0.0,PE,Non-Members
+AdaBoost,0.0,EOpp,Non-Members
+AdaBoost,0.0,EOdds,Non-Members
+DNN,0.0,SP,Non-Members
+DNN,0.0,PE,Non-Members
+DNN,0.0,EOpp,Non-Members
+DNN,0.0,EOdds,Non-Members
+RF,0.012,SP,Non-Members
+RF,0.024,PE,Non-Members
+RF,0.053,EOpp,Non-Members
+RF,0.053,EOdds,Non-Members
+XgBoost,0.143,SP,Non-Members
+XgBoost,0.103,PE,Non-Members
+XgBoost,0.214,EOpp,Non-Members
+XgBoost,0.214,EOdds,Non-Members

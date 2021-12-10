@@ -1,0 +1,9 @@
+Dataset,Model,Partition,Accuracy,SP,PE,EOpp,EOdds
+German Credit,AdaBoost,train,0.7,0.0,0.0,0.0,0.0
+German Credit,AdaBoost,test,0.7,0.0,0.0,0.0,0.0
+German Credit,DNN,train,0.7,0.0,0.0,0.0,0.0
+German Credit,DNN,test,0.7,0.0,0.0,0.0,0.0
+German Credit,RF,train,0.89,0.09,0.02,0.06,0.06
+German Credit,RF,test,0.84,0.01,0.02,0.05,0.05
+German Credit,XgBoost,train,0.77,0.12,0.04,0.13,0.13
+German Credit,XgBoost,test,0.76,0.14,0.1,0.21,0.21
