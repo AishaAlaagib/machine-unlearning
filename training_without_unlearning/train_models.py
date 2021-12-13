@@ -159,7 +159,16 @@ class Model(Module):
 # DNN
 def obj_func__DNN(params,data, rseed):
 
-    X_train,y_train, X_test,  y_test = prepare_data(data, rseed)
+#     X_train,y_train, X_test,  y_test = prepare_data(data, rseed)
+    old_X_train, old_y_train, X_test, y_test = prepare_data(dataset, rseed)
+    print(old_X_train, old_X_train.shape, old_y_train.shape)
+
+    # select random pints to delete
+    requests = np.random.randint(0, old_X_train.shape[0], args.requests)
+    print('requests', requests)
+    X_train = np.delete(old_X_train, requests, axis=0)
+    y_train = np.delete(old_y_train, requests, axis=0)
+    print(X_train, X_train.shape, y_train.shape)
     model = Sequential()
 
     # first layer
@@ -236,7 +245,17 @@ def obj_func__RF(params, data, rseed):
 def obj_func__AdaBoost(params, data, rseed):
 
     def acc_model(params, data, rseed):
-        X_train,y_train, X_test,  y_test = prepare_data(data, rseed)
+#         X_train,y_train, X_test,  y_test = prepare_data(data, rseed)
+        old_X_train, old_y_train, X_test, y_test = prepare_data(dataset, rseed)
+        print(old_X_train, old_X_train.shape, old_y_train.shape)
+
+        # select random pints to delete
+        requests = np.random.randint(0, old_X_train.shape[0], args.requests)
+        print('requests', requests)
+        X_train = np.delete(old_X_train, requests, axis=0)
+        y_train = np.delete(old_y_train, requests, axis=0)
+        print(X_train, X_train.shape, y_train.shape)
+        
         model = AdaBoostClassifier(**params)
         
         result = cross_validate(model, X_train, y_train, return_estimator=True, n_jobs=5, verbose=2)
@@ -290,6 +309,8 @@ if __name__ == '__main__':
     parser.add_argument('--rseed', type=int, default=0, help='random seed: choose between 0 - 9')
     parser.add_argument('--model_class', type=str, default='DNN', help='DNN, RF, AdaBoost, XgBoost')
     parser.add_argument('--nbr_evals', type=int, default=25, help='Number of evaluations for hyperopt')
+    parser.add_argument('--requests',    type=int, default=None, help="Generate the given number of unlearning requests according to the given distribution and apply them directly to the splitfile",
+)
 
     # get input
     args = parser.parse_args()
@@ -297,7 +318,7 @@ if __name__ == '__main__':
     rseed = args.rseed
     model_class = args.model_class
     nbr_evals = args.nbr_evals
-    
+    requests = args.requests
     # create directory to save outputs
     outdir = './pretrained/{}/'.format(dataset)
 
@@ -308,14 +329,16 @@ if __name__ == '__main__':
     print("---------------------------->>> model = {}".format(model_class))
     
     # filenames of saved objects
-    model_name = '{}{}_{}.h5'.format(outdir, model_class, rseed)
-    stats_name = '{}{}_{}.txt'.format(outdir, model_class, rseed)
+    model_name = '{}{}_{}.h5'.format(outdir, model_class, requests,rseed)
+    stats_name = '{}{}_{}.txt'.format(outdir, model_class, requests,rseed)
+
 
     if model_class == 'DNN':
         # Initialize an empty trials database
         trials = Trials()
 
         # Perform the evaluations on the search space
+#         print(dataset)
         obj_func__DNN = partial(obj_func__DNN, data=dataset, rseed=rseed)
         best = fmin(obj_func__DNN, space_DNN, algo=tpe.suggest, trials=trials, max_evals=nbr_evals)
 
@@ -326,7 +349,9 @@ if __name__ == '__main__':
 
         # accuracy of the best model
         X_train, y_train, X_test, y_test = prepare_data(dataset, rseed)
-
+        
+        
+        
         acc_train = best_model.evaluate(X_train, y_train)[1]
         acc_test = best_model.evaluate(X_test, y_test)[1]
 
@@ -433,9 +458,18 @@ if __name__ == '__main__':
             
             
     if model_class == 'NN':
-        X_train, y_train, X_test, y_test = prepare_data(dataset, rseed)
+        old_X_train, old_y_train, X_test, y_test = prepare_data(dataset, rseed)
+        print(old_X_train, old_X_train.shape, old_y_train.shape)
+        
+        # select random pints to delete
+        requests = np.random.randint(0, old_X_train.shape[0], args.requests)
+        print('requests', requests)
+        X_train = np.delete(old_X_train, requests, axis=0)
+        y_train = np.delete(old_y_train, requests, axis=0)
+        print(X_train, X_train.shape, y_train.shape)
         train_data = TensorDataset( Tensor(X_train), Tensor(y_train) )
         test_data = TensorDataset( Tensor(X_test), Tensor(y_test) )
+        
         
         train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=16)
         test_loader = torch.utils.data.DataLoader(test_data, shuffle=False, batch_size=16)
@@ -510,6 +544,12 @@ if __name__ == '__main__':
         # Print test accuracy.
         percent = 100. * correct / len(test_loader.dataset)
         print(f'Accuracy: {correct}/{len(test_loader.dataset)} ({percent:.0f}%)')
+        
+        # save best models params and perfs
+#         with open(stats_name,'w') as myFile:
+# #             myFile.write('Accuracy train: {}\n'.format(acc_train))
+#             myFile.write('Accuracy test: {}\n'.format(percent))
+#             myFile.write('Model params: {}\n'.format(best_params))
         print(outputs)
          #Save outputs in numpy format.
         outputs = np.array(outputs)

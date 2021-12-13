@@ -18,8 +18,8 @@ from metrics import ConfusionMatrix, Metric
 from collections import Counter
 from torch.nn import Module, Linear
 from torch.nn.functional import tanh
-
-
+from csv import writer
+import csv
 
 data_dict = {
     'adult_income'      : ('adult_income', 'income'),
@@ -114,7 +114,7 @@ def prepare_data_as_dataframe(data, rseed):
     return df_train, df_test
 
 
-def get_metrics(dataset, model_class, rseed):
+def get_metrics(dataset, model_class, rseed, requests):
 
     # load data as np array
     X_train, y_train, X_test, y_test = prepare_data(dataset, rseed)
@@ -127,8 +127,9 @@ def get_metrics(dataset, model_class, rseed):
     min_feature, maj_feature = subgroup_dict[dataset]
 
     # model path
+    
     outdir = './pretrained/{}/'.format(dataset)
-    model_path = '{}{}_{}.h5'.format(outdir, model_class, rseed)
+    model_path = '{}{}_{}.h5'.format(outdir, model_class, requests, rseed)
    
 
     def get_predictions(model_class, X_train, y_train, X_test, y_test):
@@ -160,10 +161,36 @@ def get_metrics(dataset, model_class, rseed):
             # get accuracy
             acc_train = mdl.evaluate(X_train, y_train)[1]
             acc_test = mdl.evaluate(X_test, y_test)[1]
-        
-        if model_class in ['RF', 'SVM', 'AdaBoost', 'XgBoost','NN']:
+        if model_class == 'NN':
+            device = torch.device( "cuda:0" if torch.cuda.is_available() else "cpu")  # pylint: disable=no-member
+            X_train = torch.from_numpy(X_train).to(device)
+            X_test = torch.from_numpy(X_test).to(device)
             # load model
-#             mdl = Model()
+#             mdl = Model(X_train.shape, 2)
+            model = pickle.load(open(model_path,"rb"))
+
+            # get prediction
+        
+            #---train
+            output = model(X_train)
+            # Get the label corresponding to the highest predicted probability.
+            predictions_train = output.argmax(dim=1, keepdim=True)
+            predictions_train = predictions_train.cpu().numpy()
+            #predictions_train = mdl.predict(X_train)
+            #predictions_train = [int(x) for x in predictions_train]
+
+            #---test
+            output = model(X_test)
+            # Get the label corresponding to the highest predicted probability.
+            predictions_test = output.argmax(dim=1, keepdim=True)
+            predictions_test = predictions_test.cpu().numpy()
+            # get accuracy
+            acc_train   = accuracy_score(y_train, predictions_train)
+            acc_test    = accuracy_score(y_test, predictions_test)
+
+        if model_class in ['RF', 'SVM', 'AdaBoost', 'XgBoost']:
+            # load model
+#             mdl = Model(X_train.shape, 2)
             mdl = pickle.load(open(model_path,"rb"))
 
             # get prediction
@@ -217,7 +244,7 @@ def get_metrics(dataset, model_class, rseed):
         return fairness_metrics
 
     
-    def get_output(dataset, model_class, output_type, prediction_metrics, fairness_metrics):
+    def get_output(dataset, model_class, output_type, prediction_metrics, fairness_metrics, requests):
         res = {}
 
         # dataset
@@ -226,6 +253,8 @@ def get_metrics(dataset, model_class, rseed):
         # model class
         res['Model']    = model_class
 
+        if requests:
+            res['requests'] = requests
         # output type
         res['Partition']     = output_type
 
@@ -243,59 +272,96 @@ def get_metrics(dataset, model_class, rseed):
     prediction_metrics = get_predictions(model_class, X_train, y_train, X_test, y_test)
     fairness_metrics = get_fairness_metrics(df_train, df_test, prediction_metrics)
 
-    output_train    = get_output(dataset, model_class, 'Train', prediction_metrics, fairness_metrics)
-    output_test     = get_output(dataset, model_class, 'Test', prediction_metrics, fairness_metrics)
+    output_train    = get_output(dataset, model_class, 'Train', prediction_metrics, fairness_metrics, requests)
+    output_test     = get_output(dataset, model_class, 'Test', prediction_metrics, fairness_metrics, requests)
 
     return output_train, output_test
 
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Script pretraining DNN models')
+    parser.add_argument('--requests',    type=int, default=None, help="Generate the given number of unlearning requests according to the given distribution and apply them directly to the splitfile",
+)
+    # get input
+    args = parser.parse_args()
+    requests = args.requests
+    
     # inputs
-    datasets = ['new_adult_income','adult_income']#, 'compas', 'default_credit', 'marketing']
-    model_classes = ['AdaBoost', 'DNN']#, 'RF', 'XgBoost']
-    
-    df_list = []
+    datasets = ['adult_income']#, 'compas', 'default_credit', 'marketing']
+    model_classes = ['DNN']#, 'DNN']#, 'RF', 'XgBoost']
+    requests=(327, 1636, 3272, 4909, 6545, 8181 ,9817, 11453 ,13089, 14726 ,16362, 17998, 19634, 21270 ,22906,24543, 26179 ,27815, 29451, 31087)
+#     requests=(42, 206 ,412, 618, 824, 1030, 1236 ,1442, 1648, 1854, 2060 ,2266 ,2678, 2884,2513, 3090, 3296 ,3502, 3708, 3914) # compas
 
-    for rseed in range(1):
-        row_list = []
-        for dataset in datasets:
-            for model_class in model_classes:
-                output_train, output_test = get_metrics(dataset, model_class, rseed)
-                row_list.append(output_train)
-                row_list.append(output_test)
-        df = pd.DataFrame(row_list)
-        df_list.append(df)
-
-    
-    
-    average_row_list = []
-    for index in range(len(df_list[0])):
-        average_row = {
-            'Dataset'      : df_list[0].iloc[index]['Dataset'],
-            'Model'         : df_list[0].iloc[index]['Model'],
-            'Partition'      : df_list[0].iloc[index]['Partition'],
-            'Accuracy'     : np.round(np.mean([df_list[j].iloc[index]['Accuracy'] for j in range(1)]), 2),
-            'SP'     : np.round(np.mean([df_list[j].iloc[index]['SP'] for j in range(1)]), 2),
-            'PE'     : np.round(np.mean([df_list[j].iloc[index]['PE'] for j in range(1)]), 2),
-            'EOpp'     : np.round(np.mean([df_list[j].iloc[index]['EOpp'] for j in range(1)]), 2),
-            'EOdds'     : np.round(np.mean([df_list[j].iloc[index]['EOdds'] for j in range(1)]), 2)
-        }
-        average_row_list.append(average_row)
-    df_average = pd.DataFrame(average_row_list) 
-    
     
     save_dir = ('./results/summary')
-
-    os.makedirs(save_dir, exist_ok=True)
-
-
-
+    if not os.path.exists(save_dir):
+        os.mkdir(outdir)
     filename = '{}/summary.csv'.format(save_dir)
-
+    # adding header
+    headerList = ['Dataset', 'Model', 'requests', 'Partition', 'Accuracy', 'SP','PE','EOpp', 'EOdds']
     
+    with open(filename, 'w') as file:
+        dw = csv.DictWriter(file, delimiter=',',fieldnames=headerList)
+        dw.writeheader()
+    
+    for request in requests:
+        df_list = []
+        for rseed in range(1):
+            row_list = []
+            for dataset in datasets:
+                for model_class in model_classes:
+                    output_train, output_test = get_metrics(dataset, model_class, rseed, request)
+#                     row_list.append(output_train)
+                    row_list.append(output_test)
+            df = pd.DataFrame(row_list)
+#             print(df)
+            df_list.append(df)
 
-    df_average.to_csv(filename, encoding='utf-8', index=False)
 
+
+        average_row_list = []
+        for index in range(len(df_list[0])):
+            average_row = {
+                'Dataset'      : df_list[0].iloc[index]['Dataset'],
+                'Model'         : df_list[0].iloc[index]['Model'],
+                'requests'      : df_list[0].iloc[index]['requests'],
+                'Partition'      : df_list[0].iloc[index]['Partition'],
+                'Accuracy'     : np.round(np.mean([df_list[j].iloc[index]['Accuracy'] for j in range(1)]), 2),
+                'SP'     : np.round(np.mean([df_list[j].iloc[index]['SP'] for j in range(1)]), 2),
+                'PE'     : np.round(np.mean([df_list[j].iloc[index]['PE'] for j in range(1)]), 2),
+                'EOpp'     : np.round(np.mean([df_list[j].iloc[index]['EOpp'] for j in range(1)]), 2),
+                'EOdds'     : np.round(np.mean([df_list[j].iloc[index]['EOdds'] for j in range(1)]), 2)
+            }
+            average_row_list.append(average_row)
+        df_average = pd.DataFrame(average_row_list) 
+
+
+
+    #     os.makedirs(save_dir, exist_ok=True)
+
+
+
+
+
+
+
+        df_average.to_csv(filename, encoding='utf-8', mode='a', index=False, header=False)
+
+#         Open our existing CSV file in append mode
+#         Create a file object for this file
+#         print(df_average[1:])
+#         with open(filename, 'a') as f_object:
+
+#             # Pass this file object to csv.writer()
+#             # and get a writer object
+#             writer_object = writer(f_object)
+
+#             # Pass the list as an argument into
+#             # the writerow()
+#             writer_object.writerow(df_average[1:])
+
+#             #Close the file object
+#             f_object.close()
 
 

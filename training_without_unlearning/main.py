@@ -10,7 +10,7 @@ from marketing import get_marketing
 # parser initialization
 parser = argparse.ArgumentParser(description='Script for datasets preprocessing')
 
-parser.add_argument('--dataset', type=str, default='adult_income', help='Dataset: adult_income,new_adult_income, compas, default_credit, marketing')
+parser.add_argument('--dataset', type=str, default='new_adult_income', help='Dataset: new_adult_income , adult_income, compas, default_credit, marketing')
 args = parser.parse_args()
 
 

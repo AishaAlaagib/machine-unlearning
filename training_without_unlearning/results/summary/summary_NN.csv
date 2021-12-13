@@ -1,0 +1,20 @@
+Dataset,Model,requests,Partition,Accuracy,SP,PE,EOpp,EOdds
+Adult Income,NN,327,Test,0.84,0.19,0.08,0.16,0.16
+Adult Income,NN,1636,Test,0.84,0.19,0.08,0.17,0.17
+Adult Income,NN,3272,Test,0.84,0.18,0.07,0.16,0.16
+Adult Income,NN,4909,Test,0.84,0.18,0.08,0.15,0.15
+Adult Income,NN,6545,Test,0.84,0.19,0.08,0.17,0.17
+Adult Income,NN,8181,Test,0.84,0.18,0.08,0.16,0.16
+Adult Income,NN,9817,Test,0.84,0.18,0.08,0.15,0.15
+Adult Income,NN,11453,Test,0.84,0.18,0.08,0.14,0.14
+Adult Income,NN,13089,Test,0.84,0.18,0.08,0.16,0.16
+Adult Income,NN,14726,Test,0.84,0.18,0.08,0.15,0.15
+Adult Income,NN,16362,Test,0.84,0.18,0.08,0.14,0.14
+Adult Income,NN,17998,Test,0.84,0.18,0.07,0.16,0.16
+Adult Income,NN,19634,Test,0.84,0.18,0.08,0.14,0.14
+Adult Income,NN,21270,Test,0.84,0.18,0.08,0.16,0.16
+Adult Income,NN,24543,Test,0.84,0.18,0.08,0.16,0.16
+Adult Income,NN,26179,Test,0.84,0.18,0.08,0.18,0.18
+Adult Income,NN,27815,Test,0.84,0.19,0.08,0.17,0.17
+Adult Income,NN,29451,Test,0.84,0.18,0.08,0.17,0.17
+Adult Income,NN,31087,Test,0.84,0.18,0.08,0.18,0.18

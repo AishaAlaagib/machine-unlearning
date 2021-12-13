@@ -10,13 +10,13 @@
 
 
 
-# python main.py --dataset=adult_income
+python main.py --dataset=adult_income
 
-python main.py --dataset= new_adult_income
+# python main.py --dataset=new_adult_income
 
 
-# python main.py --dataset=compas
+python main.py --dataset=compas
 
-# python main.py --dataset=default_credit
+python main.py --dataset=default_credit
 
-# python main.py --dataset=marketing
+python main.py --dataset=marketing
