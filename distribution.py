@@ -29,9 +29,8 @@ parser.add_argument(
     help="Location of the datasetfile, default datasets/purchase/datasetfile",
 )
 parser.add_argument("--data", default="compas",  help='german_credit,adult_income, compas, default_credit, marketing')
-parser.add_argument("--per", default=None, type=int,  help="Name of the req percentage",
-)
-
+parser.add_argument("--per", default=None, type=int,  help="Name of the req percentage")
+parser.add_argument("--rseed", default=0, type=int,  help="random seed")
 parser.add_argument("--label", default="latest", help="Label, default latest")
 args = parser.parse_args()
 
@@ -50,10 +49,10 @@ if args.shards != None:
                 for t in range(1, args.shards)
             ],
         )
-        np.save("containerss/{}/{}/{}/splitfile.npy".format(args.per,args.data, args.container), partition)
+        np.save("containerss/{}/{}/{}/{}/splitfile.npy".format(args.per,args.rseed,args.data, args.container), partition)
         requests = np.array([[] for _ in range(args.shards)])
         np.save(
-            "containerss/{}/{}/{}/requestfile:{}.npy".format(args.per,args.data, args.container, args.label),
+            "containerss/{}/{}/{}/{}/requestfile:{}.npy".format(args.per,args.rseed,args.data, args.container, args.label),
             requests,
         )
         
@@ -156,22 +155,20 @@ if args.shards != None:
                 )
 
             # Generate splitfile and empty request file.
-            np.save("containerss/{}/{}/{}/splitfile.npy".format(args.per,ars.data, args.container), partition)
+            np.save("containerss/{}/{}/{}/{}/splitfile.npy".format(args.per,args.rseed,ars.data, args.container), partition)
             requests = np.array([[] for _ in range(partition.shape[0])])
             np.save(
-                "containerss/{}/{}/{}/requestfile:{}.npy".format(args.per,args.data, args.container, args.label),
-                requests,
-            )
+                "containerss/{}/{}/{}/{}/requestfile:{}.npy".format(args.per,args.rseed,args.data, args.container, args.label),requests,)
 
 if args.requests != None:
     if args.distribution == "reset":
         print('req reset')
         requests = np.array([[] for _ in range(partition.shape[0])])
-        np.save( "containerss/{}/{}/{}/requestfile:{}.npy".format(args.per,args.data, args.container, args.label), requests, )
+        np.save( "containerss/{}/{}/{}/{}/requestfile:{}.npy".format(args.per,args.rseed,args.data, args.container, args.label), requests, )
     else:
         # Load splitfile.
         partition = np.load(
-            "containerss/{}/{}/{}/splitfile.npy".format(args.per,args.data, args.container), allow_pickle=True
+            "containerss/{}/{}/{}/{}/splitfile.npy".format(args.per,args.rseed,args.data, args.container), allow_pickle=True
         )
 
         # Randomly select points to be removed with given distribution at the dataset scale.
@@ -198,11 +195,11 @@ if args.requests != None:
         # Divide up the new requests among the shards.
         for shard in range(partition.shape[0]):
             requests.append(np.intersect1d(partition[shard], all_requests))
-        print('req partition', partition)
-        print('req request', len(requests))
+#         print('req partition', partition)
+#         print('req request', len(requests))
        
         # Update requestfile.
         np.save(
-            "containerss/{}/{}/{}/requestfile:{}.npy".format(args.per,args.data, args.container, args.label),
+           "containerss/{}/{}/{}/{}/requestfile:{}.npy".format(args.per,args.rseed,args.data, args.container, args.label),
             np.array(requests,dtype=object,  copy=False, subok=True),
         )

@@ -1,30 +1,32 @@
 #!/bin/bash
-#SBATCH --ntasks=3
-#SBATCH --qos=high
-#SBATCH --gres=gpu:1
-#SBATCH --mem=128G
-#SBATCH -c 4
-#SBATCH --partition=t4v2
+#SBATCH --cpus-per-task=2                                # Ask for 2 CPUs
+#SBATCH --gres=gpu:1                                     # Ask for 1 GPU
+#SBATCH --mem=10G                                        # Ask for 10 GB of RAM
+#SBATCH -o slurm-%j.out  # Write the log on scratch
 
-# requests=( 327 1636 3272 4909 6545 8181 9817 11453 13089 14726 16362 17998 19634 21270 22906) # adult_income 
-# requests=(42 206 412 618 824 1030 1236 1442 1648 1854 2060 2266 2678 2884) # compas
-# requests=( 275 1380 2759 4138 5517 6897 8276 9655 11034 12414 13793 15172 16552 17931 19310 ) # marketing
-requests=( 14063)  # default_credit
-# for r in "${requests[@]}"; do
+# requests=(3272 6545 9817 13089 16362 19634  22906  26100  29451 31087) # adult_income 
+# requests=(412 824 1236 1648 2060 2476 2884 3296 3708) # compas
+# requests=(2759 5517 8276 11034 13793 16552 19310 22069 24828 26207 ) # marketing
+requests=(2009 4019 6029 8036 10045 12054 14063 16072 18081 19085)  # default_credit
+datasets=(adult_income compas marketing default_credit)
+rseeds=(0 1 2 3 4 5 6 7 8 9)
+for r in "${requests[@]}"; do
     # prepare the dataset 
-    # bash  datasets/data.sh
+    for rseed in "${rseeds[@]}"; do
+        bash  datasets/data.sh default_credit $rseed
 
-    #get the shards and the requests for all the datasets
-#     bash  example-scripts/init.sh 5 $r default_credit
+    #     #get the shards and the requests for all the datasets
+        bash  example-scripts/init.sh 5 $r default_credit $rseed
 
-#     bash  example-scripts/train.sh 5 $r default_credit
-
-
-#     bash  example-scripts/predict.sh 5 $r default_credit
+        bash  example-scripts/train.sh 5 $r default_credit $rseed
 
 
-#     bash  example-scripts/data.sh 5 $r default_credit
+        bash  example-scripts/predict.sh 5 $r default_credit $rseed
 
 
-# done 
-python visulaization.py 
+        bash  example-scripts/data.sh 5 $r default_credit $rseed
+
+    done
+done 
+# python visulaization.py 
+# python summary.py

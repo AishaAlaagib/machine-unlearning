@@ -1,18 +1,14 @@
 #!/bin/bash
-#SBATCH --ntasks=3
-#SBATCH --qos=high
-#SBATCH --gres=gpu:1
-#SBATCH --mem=4G
-#SBATCH -c 4
-#SBATCH --partition=t4v2
-#SBATCH --mail-user=aalaagib@aimsammi.org
-#SBATCH --mail-type=ALL
+#SBATCH --cpus-per-task=2                                # Ask for 2 CPUs
+#SBATCH --gres=gpu:1                                     # Ask for 1 GPU
+#SBATCH --mem=10G                                        # Ask for 10 GB of RAM
+#SBATCH -o slurm-%j.out  # Write the log on scratch
 
-datasets=(Adult_income )
-models=(DNN )
-rseed=(0)
-requests=(327 1636 3272 4909 6545 8181 9817 11453 13089 14726 16362 17998 19634 21270 22906 24543 26179 27815 29451 31087)
-# requests=(42 206 412 618 824 1030 1236 1442 1648 1854 2060 2266 2678 2884 2513 3090 3296 3502 3708 3914) # compas
+datasets=(marketing )
+models=(NN )
+rseed=(0 1 2 3 4 5 6 7 8 9)
+requests=(0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.95)
+
 
 # for dataset in "${datasets[@]}" 
 #     do
@@ -41,5 +37,5 @@ requests=(327 1636 3272 4909 6545 8181 9817 11453 13089 14726 16362 17998 19634 
 # # python unfairness_result.py 
 
 # python summary.py 
-# python latex_summary.py
+# # python latex_summary.py
 python visualization.py

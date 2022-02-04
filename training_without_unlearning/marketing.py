@@ -13,6 +13,6 @@ def get_marketing(save_df=False):
     df['age'] = df['age'].apply(lambda x: 'age:30-60' if ((x >= 30) & (x <=60))  else 'age:not30-60')
     
     if save_df:
-        for rseed in range(1):
+        for rseed in range(10):
             save(df, dataset, decision, rseed)
     #return df

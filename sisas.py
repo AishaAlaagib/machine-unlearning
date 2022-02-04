@@ -70,6 +70,7 @@ parser.add_argument(
 )
 parser.add_argument("--data", default="compas",  help='german_credit,adult_income, compas, default_credit, marketing')
 parser.add_argument("--per", default=None, type=int,  help="Name of the req percentage")
+parser.add_argument("--rseed", default=0, type=int,  help="random seed")
 
 parser.add_argument(
     "--label",
@@ -110,7 +111,7 @@ else:
 
 if args.train:
 #     print('############### train ############')
-    shard_size = sizeOfShard(args.per,args.data,args.container, args.shard)
+    shard_size = sizeOfShard(args.rseed,args.per,args.data,args.container, args.shard)
     slice_size = shard_size // args.slices
 #     print('shard_size', shard_size,'slice_size', slice_size)  
     avg_epochs_per_slice = (
@@ -120,13 +121,13 @@ if args.train:
 #     print('shard_size',shard_size, 'sice_size', slice_size)
     for sl in range(args.slices):
         # Get slice hash using sharded lib.
-        slice_hash = getShardHash(args.per,args.data,
+        slice_hash = getShardHash(args.rseed,args.per,args.data,
             args.container, args.label, args.shard, until=(sl + 1) * slice_size
         )
 
         # If checkpoints exists, skip the slice.
         if not os.path.exists(
-            "containerss/{}/{}/{}/cache/{}.pt".format(args.per,args.data, args.container, slice_hash)
+            "containerss/{}/{}/{}/{}/cache/{}.pt".format(args.per,args.rseed,args.data, args.container, slice_hash)
         ):
             # Initialize state.
             elapsed_time = 0
@@ -139,7 +140,7 @@ if args.train:
             if not loaded:
                 # Look for a recovery checkpoint for the slice.
                 recovery_list = glob(
-                    "containerss/{}/{}/{}/cache/{}_*.pt".format(args.per,args.data,args.container, slice_hash)
+                    "containerss/{}/{}/{}/{}/cache/{}_*.pt".format(args.per,args.rseed,args.data,args.container, slice_hash)
                 )
                 if len(recovery_list) > 0:
                     print(
@@ -154,7 +155,7 @@ if args.train:
 
                     # Load time
                     with open(
-                        "containerss/{}/{}/{}/times/{}_{}.time".format(args.per,args.data,
+                        "containerss/{}/{}/{}/{}/times/{}_{}.time".format(args.per,args.rseed,args.data,
                             args.container, slice_hash, start_epoch
                         ),
                         "r",
@@ -163,14 +164,14 @@ if args.train:
 
                 # If there is no recovery checkpoint and this slice is not the first, load previous slice.
                 elif sl > 0:
-                    previous_slice_hash = getShardHash(
+                    previous_slice_hash = getShardHash(args.rseed,
                         args.per,args.container, args.label, args.shard, until=sl * slice_size
                     )
 
                     # Load weights.
                     model.load_state_dict(
                         torch.load(
-                            "containerss/{}/{}/{}/cache/{}.pt".format(args.per,args.data,
+                            "containerss/{}/{}/{}/{}/cache/{}.pt".format(args.per,args.rseed,args.data,
                                 args.container, previous_slice_hash
                             )
                         )
@@ -190,7 +191,7 @@ if args.train:
             for epoch in range(start_epoch, slice_epochs):
                 epoch_start_time = time()
                 
-                for images, labels in fetchShardBatch(args.per,args.data,
+                for images, labels in fetchShardBatch(args.rseed,args.per,args.data,
                     args.container,
                     args.label,
                     args.shard,
@@ -228,14 +229,14 @@ if args.train:
                     # Save weights
                     torch.save(
                         model.state_dict(),
-                        "containerss/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.data,
+                        "containerss/{}/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.rseed,args.data,
                             args.container, slice_hash, epoch
                         ),
                     )
 
                     # Save time
                     with open(
-                        "containerss/{}/{}/{}/times/{}_{}.time".format(args.per,args.data,
+                        "containerss/{}/{}/{}/{}/times/{}_{}.time".format(args.per,args.rseed,args.data,
                             args.container, slice_hash, epoch
                         ),
                         "w",
@@ -244,22 +245,22 @@ if args.train:
 
                     # Remove previous checkpoint.
                     if os.path.exists(
-                        "containerss/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.data,
+                        "containerss/{}/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.rseed,args.data,
                             args.container, slice_hash, epoch - args.chkpt_interval
                         )
                     ):
                         os.remove(
-                            "containerss/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.data,
+                            "containerss/{}/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.rseed,args.data,
                                 args.container, slice_hash, epoch - args.chkpt_interval
                             )
                         )
                     if os.path.exists(
-                        "containerss/{}/{}/{}/times/{}_{}.time".format(args.per,args.data,
+                        "containerss/{}/{}/{}/{}/times/{}_{}.time".format(args.per,args.rseed,args.data,
                             args.container, slice_hash, epoch - args.chkpt_interval
                         )
                     ):
                         os.remove(
-                            "containerss/{}/{}/{}/times/{}_{}.time".format(args.per,args.data,
+                            "containerss/{}/{}/{}/{}/times/{}_{}.time".format(args.per,args.rseed,args.data,
                                 args.container, slice_hash, epoch - args.chkpt_interval
                             )
                         )
@@ -268,31 +269,31 @@ if args.train:
 #             print('################ training done #################')
             torch.save(
                 model.state_dict(),
-                "containerss/{}/{}/{}/cache/{}.pt".format(args.per,args.data,args.container, slice_hash),
+                "containerss/{}/{}/{}/{}/cache/{}.pt".format(args.per,args.rseed,args.data,args.container, slice_hash),
             )
             with open(
-                "containerss/{}/{}/{}/times/{}.time".format(args.per,args.data,args.container, slice_hash), "w"
+                "containerss/{}/{}/{}/{}/times/{}.time".format(args.per,args.rseed,args.data,args.container, slice_hash), "w"
             ) as f:
                 f.write("{}\n".format(train_time + elapsed_time))
 
             # Remove previous checkpoint.
             if os.path.exists(
-                "containerss/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.data,
+                "containerss/{}/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.rseed,args.data,
                     args.container, slice_hash, args.epochs - args.chkpt_interval
                 )
             ):
                 os.remove(
-                    "containerss/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.data,
+                    "containerss/{}/{}/{}/{}/cache/{}_{}.pt".format(args.per,args.rseed,args.data,
                         args.container, slice_hash, args.epochs - args.chkpt_interval
                     )
                 )
             if os.path.exists(
-                "containerss/{}/{}/{}/times/{}_{}.time".format(args.per,args.data,
+                "containerss/{}/{}/{}/{}/times/{}_{}.time".format(args.per,args.rseed,args.data,
                     args.container, slice_hash, args.epochs - args.chkpt_interval
                 )
             ):
                 os.remove(
-                    "containerss/{}/{}/{}/times/{}_{}.time".format(args.per,args.data,
+                    "containerss/{}/{}/{}/{}/times/{}_{}.time".format(args.per,args.rseed,args.data,
                         args.container, slice_hash, args.epochs - args.chkpt_interval
                     )
                 )
@@ -303,13 +304,13 @@ if args.train:
 #                 print('########### last slice ########')
                 os.symlink(
                     "{}.pt".format(slice_hash),
-                    "containerss/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.data,
+                    "containerss/{}/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.rseed,args.data,
                         args.container, args.shard, args.label
                     ),
                 )
                 os.symlink(
                     "{}.time".format(slice_hash),
-                    "containerss/{}/{}/{}/times/shard-{}:{}.time".format(args.per,args.data,
+                    "containerss/{}/{}/{}/{}/times/shard-{}:{}.time".format(args.per,args.rseed,args.data,
                         args.container, args.shard, args.label
                     ),
                 )
@@ -317,24 +318,24 @@ if args.train:
         elif sl == args.slices - 1:
             print(' I dont understand this')
             if not os.path.exists(
-                "containerss/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.data,
+                "containerss/{}/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.rseed,args.data,
                     args.container, args.shard, args.label
                 ),
             ):
                 os.symlink(
                 "{}.pt".format(slice_hash),
-                "containerss/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.data,
+                "containerss/{}/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.rseed,args.data,
                     args.container, args.shard, args.label
                 ),
             )
             if not os.path.exists(
-                "containerss/{}/{}/{}/times/shard-{}:{}.time".format(args.per,args.data,
+                "containerss/{}/{}/{}/{}/times/shard-{}:{}.time".format(args.per,args.rseed,args.data,
                     args.container, args.shard, args.label
                 )
             ):
                 os.symlink(
                     "null.time",
-                    "containerss/{}/{}/{}/times/shard-{}:{}.time".format(args.per,args.data,
+                    "containerss/{}/{}/{}/{}/times/shard-{}:{}.time".format(args.per,args.rseed,args.data,
                         args.container, args.shard, args.label
                     ),
                 )
@@ -344,7 +345,7 @@ if args.test:
     # Load model weights from shard checkpoint (last slice).
     model.load_state_dict(
         torch.load(
-            "containerss/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.data,
+            "containerss/{}/{}/{}/{}/cache/shard-{}:{}.pt".format(args.per,args.rseed,args.data,
                 args.container, args.shard, args.label
             )
         )
@@ -376,7 +377,7 @@ if args.test:
     # Save outputs in numpy format.
     outputs = np.array(outputs)
     np.save(
-        "containerss/{}/{}/{}/outputs/shard-{}:{}.npy".format(args.per, args.data,
+        "containerss/{}/{}/{}/{}/outputs/shard-{}:{}.npy".format(args.per, args.rseed,args.data,
             args.container, args.shard, args.label
         ),
         outputs,

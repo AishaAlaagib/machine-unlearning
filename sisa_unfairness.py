@@ -136,13 +136,7 @@ class Metric(namedtuple('Metric', 'cm_minority cm_majority')):
 
         if id == 6:
             return self.conditional_use_accuracy_equality()
-
-        
-
-
-        
-        
-        
+       
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--strategy", default="uniform", help="Voting strategy, default uniform"
@@ -159,7 +153,7 @@ parser.add_argument(
 )
 parser.add_argument("--data", default="compas",  help='german_credit,adult_income, compas, default_credit, marketing')
 parser.add_argument("--per", type=int, default=1, help="Number of requests, default 1")
-
+parser.add_argument("--rseed", default=0, type=int,  help="random seed")
 parser.add_argument("--label", default="latest", help="Label, default latest")
 args = parser.parse_args()
 
@@ -181,7 +175,7 @@ outputs = []
 for filename in filenames:
     outputs.append(
         np.load(
-            os.path.join("containerss/{}/{}/{}/outputs".format(args.per,args.data, args.container), filename),
+            os.path.join("containerss/{}/{}/{}/{}/outputs".format(args.per,args.rseed,args.data, args.container), filename),
             allow_pickle=True,
         )
     )
@@ -198,7 +192,7 @@ elif args.strategy.startswith("models:"):
     weights[models] = 1 / models.shape[0]  # pylint: disable=unsubscriptable-object
 elif args.strategy == "proportional":
     split = np.load(
-        "containerss/{}/{}/{}/splitfile.npy".format(args.per,args.data,args.container), allow_pickle=True
+        "containerss/{}/{}/{}/{}/splitfile.npy".format(args.per,args.rseed,args.data,args.container), allow_pickle=True
     )
     weights = np.array([shard.shape[0] for shard in split])
 
@@ -210,6 +204,8 @@ votes = np.argmax(
 )  # pylint: disable=unsubscriptable-object
 
 # Load labels.
+# X_train, train_labels, maj_train, min_train= dataloader.load(np.arange(datasetfile["nb_train"]), category="unf")
+# print(X_train.shape)
 X_test, labels, maj_test, min_test= dataloader.load(np.arange(datasetfile["nb_test"]), category="unf")
 
 # Compute and print accuracy.

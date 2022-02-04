@@ -1,5 +1,5 @@
 {
-    "nb_train": 27587,
+    "nb_train": 22069,
     "nb_test": 6794,
     "input_shape": [61],
     "nb_classes": 2,

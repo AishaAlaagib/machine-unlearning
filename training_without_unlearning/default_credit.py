@@ -14,6 +14,6 @@ def get_default_credit(save_df=False):
 
 
     if save_df:
-        for rseed in range(1):
+        for rseed in range(10):
             save(df, dataset, decision, rseed)
     #return df

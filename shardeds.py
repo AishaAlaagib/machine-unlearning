@@ -3,30 +3,30 @@ from hashlib import sha256
 import importlib
 import json
 
-def sizeOfShard(per,data, container, shard):
+def sizeOfShard(rseed,per,data, container, shard):
     '''
     Returns the size (in number of points) of the shard before any unlearning request.
     '''
-    shards = np.load('containerss/{}/{}/{}/splitfile.npy'.format(per,data,container), allow_pickle=True)
+    shards = np.load('containerss/{}/{}/{}/{}/splitfile.npy'.format(per,rseed,data,container), allow_pickle=True)
     
     return shards[shard].shape[0]
 
-def realSizeOfShard(per,data, container, label, shard):
+def realSizeOfShard(rseed,per,data, container, label, shard):
     '''
     Returns the actual size of the shard (including unlearning requests).
     '''
-    shards = np.load('containerss/{}/{}/{}/splitfile.npy'.format(per,data,container), allow_pickle=True)
-    requests = np.load('containerss/{}/{}/{}/requestfile:{}.npy'.format(per,data, container, label), allow_pickle=True)
+    shards = np.load('containerss/{}/{}/{}/{}/splitfile.npy'.format(per,rseed,data,container), allow_pickle=True)
+    requests = np.load('containerss/{}/{}/{}/{}/requestfile:{}.npy'.format(per,rseed,data, container, label), allow_pickle=True)
     
     return shards[shard].shape[0] - requests[shard].shape[0]
 
-def getShardHash(per,data, container, label, shard, until=None):
+def getShardHash(rseed,per,data, container, label, shard, until=None):
     '''
     Returns a hash of the indices of the points in the shard lower than until
     that are not in the requests (separated by :).
     '''
-    shards = np.load('containerss/{}/{}/{}/splitfile.npy'.format(per,data,container), allow_pickle=True)
-    requests = np.load('containerss/{}/{}/{}/requestfile:{}.npy'.format(per,data, container, label), allow_pickle=True)
+    shards = np.load('containerss/{}/{}/{}/{}/splitfile.npy'.format(per,rseed,data,container), allow_pickle=True)
+    requests = np.load('containerss/{}/{}/{}/{}/requestfile:{}.npy'.format(per,rseed,data, container, label), allow_pickle=True)
 
     if until == None:
         until = shards[shard].shape[0]
@@ -35,14 +35,14 @@ def getShardHash(per,data, container, label, shard, until=None):
     string_of_indices = ':'.join(indices.astype(str))
     return sha256(string_of_indices.encode()).hexdigest()
 
-def fetchShardBatch(per,data,container, label, shard, batch_size, dataset, offset=0, until=None):
+def fetchShardBatch(rseed,per,data,container, label, shard, batch_size, dataset, offset=0, until=None):
     '''
     Generator returning batches of points in the shard that are not in the requests
     with specified batch_size from the specified dataset
     optionnally located between offset and until (slicing).
     '''
-    shards = np.load('containerss/{}/{}/{}/splitfile.npy'.format(per,data,container), allow_pickle=True)
-    requests = np.load('containerss/{}/{}/{}/requestfile:{}.npy'.format(per,data,container, label), allow_pickle=True)
+    shards = np.load('containerss/{}/{}/{}/{}/splitfile.npy'.format(per,rseed,data,container), allow_pickle=True)
+    requests = np.load('containerss/{}/{}/{}/{}/requestfile:{}.npy'.format(per,rseed,data,container, label), allow_pickle=True)
 #     print(until,shard, shards[shard].shape[0])
 #     print( shards[0].shape[0], shards[1].shape[0])#, shards[2].shape[0], shards[3].shape[0], shards[4].shape[0])
     with open(dataset) as f:

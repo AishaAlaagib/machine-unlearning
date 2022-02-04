@@ -1,6 +1,6 @@
 from torch.nn import Module, Linear
 from torch.nn.functional import tanh
-
+import torch
 class Model(Module):
     def __init__(self, input_shape, nb_classes, *args, **kwargs):
         super(Model, self).__init__()
@@ -10,7 +10,7 @@ class Model(Module):
     def forward(self, x):
 #         print(x.shape)
         x = self.fc1(x)
-        x = tanh(x)
+        x =  torch.tanh(x)
         x = self.fc2(x)
 
         return x

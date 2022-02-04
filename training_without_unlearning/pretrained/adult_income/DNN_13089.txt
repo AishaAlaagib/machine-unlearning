@@ -1,3 +1,0 @@
-Accuracy train: 0.861447274684906
-Accuracy test: 0.8528353571891785
-Model params: {'dropout_l1': 0.2272413414288153, 'dropout_l2': 0.2944951793317608, 'epochs': 30, 'nbr_layers': {'dropout_l3_a': 0.3536945293147872, 'layers': 'three', 'units_l3_a': 50}, 'optimizer': 'rmsprop', 'units_l1': 150, 'units_l2': 100}

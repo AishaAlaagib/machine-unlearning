@@ -33,6 +33,6 @@ def get_compas(save_df=False):
     df = df.replace({'c_charge_degree': {'M': 'Misdemeanor', 'F': 'Felony'}})
 
     if save_df:
-       for rseed in range(1):
+       for rseed in range(10):
             save(df, dataset, decision, rseed)
     #return df

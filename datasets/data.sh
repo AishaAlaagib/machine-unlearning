@@ -1,22 +1,19 @@
 #!/bin/bash
-#SBATCH --ntasks=3
-#SBATCH --qos=high
-#SBATCH --gres=gpu:1
-#SBATCH --mem=4G
-#SBATCH -c 4
-#SBATCH --partition=t4v2
+#SBATCH --cpus-per-task=2                                # Ask for 2 CPUs
+#SBATCH --gres=gpu:1                                     # Ask for 1 GPU
+#SBATCH --mem=10G                                        # Ask for 10 GB of RAM
+#SBATCH -o slurm-%j.out  # Write the log on scratch
 
-set -eou pipefail
-IFS=$'\n\t'
 
-datasets=(new_adult_income adult_income compas default_credit marketing )
-rseed=(0)
+
+# datasets=(new_adult_income adult_income compas default_credit marketing )
+dataset=$1
+rseed=$2
 
 for dataset in "${datasets[@]}" 
     do
-        for r in ${rseed[@]}
-            do
+        
                 # preparing the dataset
-                python prepare_data.py --dataset=$dataset --rseed=$r
-            done
+        python ./datasets/prepare_data.py --dataset=$dataset --rseed=$rseed
+            
     done

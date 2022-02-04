@@ -29,10 +29,22 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score, cross_validate
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
+from sklearn.model_selection import train_test_split
 import xgboost
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam, SGD
+from collections import Counter
+from torch.nn import Module, Linear
+from torch.nn.functional import tanh
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+import pickle
+from csv import writer
+import csv
 dataset_dict = {
     1 : 'adult_income',
     2 : 'compas',
@@ -104,7 +116,7 @@ space_XgBoost = {
 }
 
 
-def prepare_data(data, rseed):
+def prepare_data(data, rseed,req):
 
     dataset, decision = data_dict[data]
     datadir = './preprocessed/{}/'.format(dataset)    
@@ -117,7 +129,12 @@ def prepare_data(data, rseed):
     # load dataframe
     df_train    = pd.read_csv(train_file)
     df_test     = pd.read_csv(test_file)
-
+    print('all',df_train.shape)
+    # split to train and val
+#     df_trains, df_val = train_test_split(df_train, test_size=0.20, random_state=42)
+    df_train = df_train.sample(frac=1-req)
+    
+    print('after',df_train.shape)
     # prepare the data
     scaler = StandardScaler()
     ## training set
@@ -160,15 +177,15 @@ class Model(Module):
 def obj_func__DNN(params,data, rseed):
 
 #     X_train,y_train, X_test,  y_test = prepare_data(data, rseed)
-    old_X_train, old_y_train, X_test, y_test = prepare_data(dataset, rseed)
-    print(old_X_train, old_X_train.shape, old_y_train.shape)
+    X_train, y_train, X_test, y_test = prepare_data(dataset, rseed,req)
+#     print(old_X_train, old_X_train.shape, old_y_train.shape)
 
     # select random pints to delete
-    requests = np.random.randint(0, old_X_train.shape[0], args.requests)
-    print('requests', requests)
-    X_train = np.delete(old_X_train, requests, axis=0)
-    y_train = np.delete(old_y_train, requests, axis=0)
-    print(X_train, X_train.shape, y_train.shape)
+#     requests = np.random.randint(0, old_X_train.shape[0], args.requests)
+#     print('requests', requests)
+#     X_train = np.delete(old_X_train, requests, axis=0)
+#     y_train = np.delete(old_y_train, requests, axis=0)
+#     print(X_train, X_train.shape, y_train.shape)
     model = Sequential()
 
     # first layer
@@ -300,7 +317,46 @@ def obj_func__XgBoost(params, data, rseed):
 
     return {'loss': -acc, 'status': STATUS_OK, 'model': model}
 
+def train(model, train_loader, optimizer, epoch):
+    model.train()
+    
+    for inputs, target in train_loader:
+      
+        inputs, target = inputs.to(device), target.to(device)
+        
+        optimizer.zero_grad()
+        output = model(inputs)
+        loss = loss_fn(output, target)
+        # Backprop
+        loss.backward()
+        optimizer.step()
+        ###
+def test(model, test_loader):
+    model.eval()
+    
+    test_loss = 0
+    correct = 0
+    test_size = 0
+    
+    with torch.no_grad():
+      
+        for inputs, target in test_loader:
+            
+            inputs, target = inputs.to(device), target.to(device)
+            
+            output = model(inputs)
+            test_size += len(inputs)
+            test_loss += test_loss_fn(output, target).item() 
+            pred = output.max(1, keepdim=True)[1] 
+            correct += pred.eq(target.view_as(pred)).sum().item()
 
+    test_loss /= test_size
+    accuracy = correct / test_size
+    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        test_loss, correct, test_size,
+        100. * accuracy))
+    
+    return test_loss, accuracy
 if __name__ == '__main__':
 
     # parser initialization
@@ -309,7 +365,7 @@ if __name__ == '__main__':
     parser.add_argument('--rseed', type=int, default=0, help='random seed: choose between 0 - 9')
     parser.add_argument('--model_class', type=str, default='DNN', help='DNN, RF, AdaBoost, XgBoost')
     parser.add_argument('--nbr_evals', type=int, default=25, help='Number of evaluations for hyperopt')
-    parser.add_argument('--requests',    type=int, default=None, help="Generate the given number of unlearning requests according to the given distribution and apply them directly to the splitfile",
+    parser.add_argument('--requests',    type=float, default=0.0, help="Generate the given number of unlearning requests according to the given distribution and apply them directly to the splitfile",
 )
 
     # get input
@@ -318,7 +374,7 @@ if __name__ == '__main__':
     rseed = args.rseed
     model_class = args.model_class
     nbr_evals = args.nbr_evals
-    requests = args.requests
+    request = args.requests
     # create directory to save outputs
     outdir = './pretrained/{}/'.format(dataset)
 
@@ -327,10 +383,10 @@ if __name__ == '__main__':
     
     print("---------------------------->>> dataset = {}".format(dataset))
     print("---------------------------->>> model = {}".format(model_class))
-    
+    print(rseed,request)
     # filenames of saved objects
-    model_name = '{}{}_{}.h5'.format(outdir, model_class, requests,rseed)
-    stats_name = '{}{}_{}.txt'.format(outdir, model_class, requests,rseed)
+    model_name = '{}{}_{}_{}.h5'.format(outdir, model_class, request,rseed)
+    stats_name = '{}{}_{}_{}.txt'.format(outdir, model_class, request,rseed)
 
 
     if model_class == 'DNN':
@@ -458,15 +514,15 @@ if __name__ == '__main__':
             
             
     if model_class == 'NN':
-        old_X_train, old_y_train, X_test, y_test = prepare_data(dataset, rseed)
-        print(old_X_train, old_X_train.shape, old_y_train.shape)
+        X_train, y_train, X_test, y_test = prepare_data(dataset, rseed,request)
+#         print(old_X_train, old_X_train.shape, old_y_train.shape)
         
-        # select random pints to delete
-        requests = np.random.randint(0, old_X_train.shape[0], args.requests)
-        print('requests', requests)
-        X_train = np.delete(old_X_train, requests, axis=0)
-        y_train = np.delete(old_y_train, requests, axis=0)
-        print(X_train, X_train.shape, y_train.shape)
+#         # select random pints to delete
+#         requests = np.random.randint(0, old_X_train.shape[0], args.requests)
+#         print('requests', requests)
+#         X_train = np.delete(old_X_train, requests, axis=0)
+#         y_train = np.delete(old_y_train, requests, axis=0)
+#         print(X_train, X_train.shape, y_train.shape)
         train_data = TensorDataset( Tensor(X_train), Tensor(y_train) )
         test_data = TensorDataset( Tensor(X_test), Tensor(y_test) )
         
@@ -476,7 +532,7 @@ if __name__ == '__main__':
         device = torch.device( "cuda:0" if torch.cuda.is_available() else "cpu")  # pylint: disable=no-member
 
 
-        input_shape = [40] 
+        input_shape = [X_train.shape[1]] 
         nb_classes = 2 
         dropout_rate = 0.4
         
@@ -515,9 +571,9 @@ if __name__ == '__main__':
                 ema_loss += (loss.item() - ema_loss) * 0.01 
 
           # Print out progress the end of epoch.
-          print('Train Epoch: {} \tLoss: {:.6f}'.format(
-                epoch, ema_loss),
-          )
+#           print('Train Epoch: {} \tLoss: {:.6f}'.format(
+#                 epoch, ema_loss),
+#           )
             
 #         torch.save(model.state_dict(), model_name)
         pickle.dump(model, open(model_name,"wb"))
@@ -550,13 +606,13 @@ if __name__ == '__main__':
 # #             myFile.write('Accuracy train: {}\n'.format(acc_train))
 #             myFile.write('Accuracy test: {}\n'.format(percent))
 #             myFile.write('Model params: {}\n'.format(best_params))
-        print(outputs)
+#         print(outputs)
          #Save outputs in numpy format.
-        outputs = np.array(outputs)
-        np.save(
-            "outputs-{}.npy".format(dataset  ),
-            outputs,
-        )
+#         outputs = np.array(outputs) 
+#         np.save(
+#             "outputs-{}.npy".format(dataset  ),
+#             outputs,
+#         )
 
         
         
