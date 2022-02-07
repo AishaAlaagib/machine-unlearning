@@ -56,7 +56,7 @@ def get_adult_income(save_df=False):
 
     df = df.rename(columns={'marital-status': 'marital_status', 'hours-per-week': 'hours_per_week', 'capital-gain': 'capital_gain', 'capital-loss': 'capital_loss'})
     #df = df.rename(columns={'marital-status': 'marital_status', 'hours-per-week': 'hours_per_week'})
-
+    
     if save_df:
         for rseed in range(10):
             save(df, dataset, decision, rseed)

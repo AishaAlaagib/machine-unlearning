@@ -4,9 +4,9 @@
 #SBATCH --mem=10G                                        # Ask for 10 GB of RAM
 #SBATCH -o slurm-%j.out  # Write the log on scratch
 
-datasets=(marketing )
+datasets=(compas )
 models=(NN )
-rseed=(0 1 2 3 4 5 6 7 8 9)
+rseed=(5)
 requests=(0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.95)
 
 

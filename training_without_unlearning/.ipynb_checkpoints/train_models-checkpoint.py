@@ -84,6 +84,7 @@ space_DNN = {
                     ]),
     'optimizer'     : hp.choice('optimizer', ['rmsprop', 'adam', 'sgd']),
     'epochs'        : 30,
+    'learning_rate'   : hp.loguniform('learning_rate', np.log(0.0001), np.log(0.5)) - 0.0001,
     }
 
 space_RF = {
@@ -158,34 +159,95 @@ def prepare_data(data, rseed,req):
 ## NN
 from torch.nn import Module, Linear
 from torch.nn.functional import tanh
-
 class Model(Module):
     def __init__(self, input_shape, nb_classes, *args, **kwargs):
         super(Model, self).__init__()
-        self.fc1 = Linear(input_shape[0], 128)
-        self.fc2 = Linear(128, nb_classes)
+        self.fc1 = Linear(input_shape[0], 25)
+        self.dropout1= nn.Dropout(0.25)
+        self.fc2 = Linear(25, 75)
+        self.dropout2= nn.Dropout(0.30)
+        self.fc3 = Linear(75, 200)
+        self.dropout3= nn.Dropout(0.30)
+        self.fc4 = Linear(200, nb_classes)
+        self.dropout4= nn.Dropout(0.30)
 
     def forward(self, x):
 #         print(x.shape)
         x = self.fc1(x)
-        x = tanh(x)
+        x = self.dropout1(x)
+        x = F.relu(x)
         x = self.fc2(x)
-
+        x = self.dropout2(x)
+        x = F.relu(x)
+        x = self.fc3(x)
+        x = self.dropout3(x)
+        x = F.relu(x)
+        x = self.fc4(x)
+        x = self.dropout4(x)
+        x = F.relu(x)
         return x
+# This for adult
+# class Model(Module):
+#     def __init__(self, input_shape, nb_classes, *args, **kwargs):
+#         super(Model, self).__init__()
+#         self.fc1 = Linear(input_shape[0], 128)
+#         self.dropout1= nn.Dropout(0.08)
+#         self.fc2 = Linear(128, nb_classes)
+#         self.dropout2= nn.Dropout(0.13)
 
+#     def forward(self, x):
+# #         print(x.shape)
+#         x = self.fc1(x)
+#         x = self.dropout1(x)
+#         x = F.relu(x)
+#         x = self.fc2(x)
+#         x = self.dropout2(x)
+#         x = F.relu(x)
+#         return x
+# class BasicNet(nn.Module):
+    
+#     def __init__(self, num_features, num_classes):
+#         super().__init__()
+#         self.num_features = num_features
+#         self.num_classes = num_classes
+#         self.layers = 0
+        
+#         self.lin1 = torch.nn.Linear(self.num_features,  150)        
+#         self.lin2 = torch.nn.Linear(50, 50)        
+#         self.lin3 = torch.nn.Linear(50, 50)
+        
+#         self.lin4 = torch.nn.Linear(150, 150) 
+        
+#         self.lin5 = torch.nn.Linear(50, 50)        
+#         self.lin6 = torch.nn.Linear(50, 50)
+#         self.lin10 = torch.nn.Linear(150, self.num_classes)
+        
+#         self.prelu = nn.PReLU()
+#         self.dropout = nn.Dropout(0.25)
+
+#     def forward(self, xin):
+#         self.layers = 0
+        
+#         x = F.relu(self.lin1(xin))
+#         self.layers += 1
+        
+#         #x = F.relu(self.lin2(x))
+#         #self.layers += 1
+#         for y in range(8):
+#           x = F.relu(self.lin4(x)) 
+#           self.layers += 1
+           
+#         x = self.dropout(x)
+        
+#         x = F.relu(self.lin10(x)) 
+#         self.layers += 1
+#         return x
 # DNN
 def obj_func__DNN(params,data, rseed):
-
+    print(request)
 #     X_train,y_train, X_test,  y_test = prepare_data(data, rseed)
-    X_train, y_train, X_test, y_test = prepare_data(dataset, rseed,req)
-#     print(old_X_train, old_X_train.shape, old_y_train.shape)
-
-    # select random pints to delete
-#     requests = np.random.randint(0, old_X_train.shape[0], args.requests)
-#     print('requests', requests)
-#     X_train = np.delete(old_X_train, requests, axis=0)
-#     y_train = np.delete(old_y_train, requests, axis=0)
-#     print(X_train, X_train.shape, y_train.shape)
+    X_train, y_train, X_test, y_test = prepare_data(dataset, rseed,request)
+    print('x_trainnn',X_train.shape)
     model = Sequential()
 
     # first layer
@@ -394,7 +456,6 @@ if __name__ == '__main__':
         trials = Trials()
 
         # Perform the evaluations on the search space
-#         print(dataset)
         obj_func__DNN = partial(obj_func__DNN, data=dataset, rseed=rseed)
         best = fmin(obj_func__DNN, space_DNN, algo=tpe.suggest, trials=trials, max_evals=nbr_evals)
 
@@ -404,13 +465,13 @@ if __name__ == '__main__':
         best_model = trials.best_trial['result']['model']
 
         # accuracy of the best model
-        X_train, y_train, X_test, y_test = prepare_data(dataset, rseed)
+        X_train, y_train, X_test, y_test = prepare_data(dataset, rseed,request)
         
         
         
         acc_train = best_model.evaluate(X_train, y_train)[1]
         acc_test = best_model.evaluate(X_test, y_test)[1]
-
+        print('train', acc_train, 'test',acc_test)
         # save the best model as bbox
         best_model.save(model_name)
 
@@ -537,11 +598,13 @@ if __name__ == '__main__':
         dropout_rate = 0.4
         
         model = Model(input_shape, nb_classes, dropout_rate=dropout_rate)
+#         model = BasicNet(input_shape[0], nb_classes)
         model.to(device)
         # Instantiate loss and optimizer.
         loss_fn = CrossEntropyLoss()
-        optimizer = SGD(model.parameters(), lr= 0.001 )
-        epochs = 20
+        optimizer = Adam(model.parameters(), lr= 0.001 )
+#         optimizer = SGD(model.parameters(), lr= 0.001 )
+        epochs = 30
         
         model.train()
         # Exponential moving average of the loss.

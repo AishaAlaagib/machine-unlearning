@@ -42,6 +42,7 @@ if args.shards != None:
     # If distribution is uniform, split without optimizing.
     if args.distribution == "uniform":
         print('uniform')
+        print(args.per)
         partition = np.split(
             np.arange(0, datasetfile["nb_train"]),
             [

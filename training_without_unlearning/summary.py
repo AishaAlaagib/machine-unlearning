@@ -53,21 +53,66 @@ subgroup_dict = {
     'marketing'         : ('age_age:30-60', 'age_age:not30-60'),
     'new_adult_income'      : ('female', 'male'),
 }
+# class Model(Module):
+#     def __init__(self, input_shape, nb_classes, *args, **kwargs):
+#         super(Model, self).__init__()
+#         self.fc1 = Linear(input_shape[0], 128)
+#         self.dropout1= nn.Dropout(0.08)
+#         self.fc2 = Linear(128, nb_classes)
+#         self.dropout2= nn.Dropout(0.13)
 
+#     def forward(self, x):
+# #         print(x.shape)
+#         x = self.fc1(x)
+#         x = self.dropout1(x)
+#         x = F.relu(x)
+#         x = self.fc2(x)
+#         x = self.dropout2(x)
+#         x = F.relu(x)
+#         return x
+# class Model(Module):
+#     def __init__(self, input_shape, nb_classes, *args, **kwargs):
+#         super(Model, self).__init__()
+#         self.fc1 = Linear(input_shape[0], 128)
+#         self.fc2 = Linear(128, nb_classes)
+
+#     def forward(self, x):
+# #         print(x.shape)
+#         x = self.fc1(x)
+#         x = tanh(x)
+#         x = self.fc2(x)
+
+#         return x
+
+# best for compas
 class Model(Module):
     def __init__(self, input_shape, nb_classes, *args, **kwargs):
         super(Model, self).__init__()
-        self.fc1 = Linear(input_shape[0], 128)
-        self.fc2 = Linear(128, nb_classes)
+        self.fc1 = Linear(input_shape[0], 25)
+        self.dropout1= nn.Dropout(0.25)
+        self.fc2 = Linear(25, 75)
+        self.dropout2= nn.Dropout(0.30)
+        self.fc3 = Linear(75, 200)
+        self.dropout3= nn.Dropout(0.30)
+        self.fc4 = Linear(200, nb_classes)
+        self.dropout4= nn.Dropout(0.30)
 
     def forward(self, x):
 #         print(x.shape)
         x = self.fc1(x)
-        x = tanh(x)
+        x = self.dropout1(x)
+        x = F.relu(x)
         x = self.fc2(x)
-
+        x = self.dropout2(x)
+        x = F.relu(x)
+        x = self.fc3(x)
+        x = self.dropout3(x)
+        x = F.relu(x)
+        x = self.fc4(x)
+        x = self.dropout4(x)
+        x = F.relu(x)
         return x
-# class Model(nn.Module):
+# class BasicNet(nn.Module):
 #     def __init__(self, num_features, num_classes):
 #         super().__init__()
 #         self.num_features = num_features[0]
@@ -210,7 +255,7 @@ def get_metrics(dataset, model_class, rseed, requests):
             X_train = torch.from_numpy(X_train).to(device)
             X_test = torch.from_numpy(X_test).to(device)
             # load model
-#             mdl = Model(X_train.shape, 2)
+#             mdl = BasicNet(X_train.shape, 2)
             model = pickle.load(open(model_path,"rb"))
 
             # get prediction
@@ -331,7 +376,7 @@ if __name__ == '__main__':
     requests = args.requests
     
     # inputs
-    datasets = ['adult_income', 'compas', 'default_credit', 'marketing']
+    datasets = ['compas']#, 'compas', 'default_credit', 'marketing']
     model_classes = ['NN']#, 'DNN']#, 'RF', 'XgBoost']
     requests=(0.0 ,0.1 ,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95)
 
